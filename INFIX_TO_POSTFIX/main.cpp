@@ -12,49 +12,74 @@ bool IsOperand(char C)
 
 bool IsOperator(char C)
 {
-	if (C == '+' || C == '-' || C == '*' || C == '/' || C == '$')
+	if (C == '+' || C == '-' || C == '*' || C == '/')
 		return true;
 
 	return false;
 }
 
-bool IsOpeningParentheses(char sym)
+bool IsOpeningParentheses(char C)
 {
+	if (C == '(' || C == '[' || C == '{')
+		return true;
 
+	return false;
 }
 
-bool IsClosingParentheses(char sym)
+bool IsClosingParentheses(char C)
 {
+	if (C == ')' || C == ']' || C == '}')
+		return true;
 
+	return false;
 }
 
-char HasHigherPrec(const char* sym, char exp)
+int GetOperatorValue(char C)
 {
-
-}
-
-const char* I2P(const char* exp)
-{
-	std::stack<const char*> s;
-	const char* res;
-	int n = sizeof(exp);
-	for (int i = 0; i <= n; i++)
+	int value = -1;
+	switch (C)
 	{
-		if (IsOperator(exp[i]))
+	case '*':
+	case '/':
+		value = 2;
+	case '+':
+	case '-':
+		value = 1;
+	}
+	return value;
+
+}
+
+char HasHigherPrec(char top, char exp)
+{
+	int v1 = GetOperatorValue(top);
+	int v2 = GetOperatorValue(exp);
+
+	return v1 > v2 ? true : false;
+}
+
+std::string I2P(std::string exp)
+{
+	std::stack<char> s;
+	std::string res = "";
+	for (int i = 0; i <= exp.length(); i++)
+	{
+		if (IsOperand(exp[i]))
 		{
 			res = res + (exp[i]);
 		}
-		else if (IsOperand(exp[i]))
+		else if (IsOperator(exp[i]))
 		{
 			while (!s.empty() && !IsOpeningParentheses(s.top()) && HasHigherPrec(s.top(), exp[i]))
 			{
 				res = res + s.top();
 				s.pop();
 			}
+			s.push(exp[i]);
 		}
 		else if (IsOpeningParentheses(exp[i]))
 		{
-			s.push();
+			s.push(exp[i]);
 		}
 		else if (IsClosingParentheses(exp[i]))
 		{
@@ -66,7 +91,7 @@ const char* I2P(const char* exp)
 			s.pop();
 		}
 	}
-	while (!s.empty)
+	while (!s.empty())
 	{
 		res = res + s.top();
 		s.pop();
@@ -76,8 +101,8 @@ const char* I2P(const char* exp)
 
 int main()
 {
-	const char* infix = "(a+b)*c";
-	const char* postfix = I2P(infix);
+	std::string infix = "((a+b)*c-d)*e";
+	std::string postfix = I2P(infix);
 
 	std::cout << postfix << std::endl;
 }
